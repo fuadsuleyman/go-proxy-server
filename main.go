@@ -45,7 +45,7 @@ func logSetup() {
 }
 
 type requestPayloadStruct struct {
-	ProxyCondition string `json:"proxy_condition"`
+	ProxyCondition string `json:"service_name"`
 }
 
 // Get a json decoder for a given requests body
@@ -110,21 +110,20 @@ func getProxyUrl(proxyConditionRaw string) string {
 	c_condtion_url := os.Getenv("C_CONDITION_URL")
 	d_condtion_url := os.Getenv("D_CONDITION_URL")
 	default_condtion_url := os.Getenv("DEFAULT_CONDITION_URL")
-	
 
-	if proxyCondition == "A" {
+	if proxyCondition == "AUTH" {
 		return a_condtion_url
 	}
 
-	if proxyCondition == "B" {
+	if proxyCondition == "CLIENT" {
 		return b_condtion_url
 	}
 
-	if proxyCondition == "C" {
+	if proxyCondition == "COURIER" {
 		return c_condtion_url
 	}
 
-	if proxyCondition == "D" {
+	if proxyCondition == "ORDER-COOK" {
 		return d_condtion_url
 	}
 
