@@ -156,7 +156,7 @@ func getUrlByPath(path []string) string {
 	d_condtion_url := viper.GetString("condition.order_cook")
 	default_condtion_url := viper.GetString("condition.default")
 	basePath := path[1]
-	if strings.ToLower(basePath) == "register" || strings.ToLower(basePath) == "register" {
+	if strings.ToLower(basePath) == "register" || strings.ToLower(basePath) == "login" {
 		return a_condtion_url
 	}
 
