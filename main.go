@@ -148,12 +148,50 @@ func getProxyUrl(proxyConditionRaw string) string {
 	return default_condtion_url
 }
 
-// export DEFAULT_CONDITION_URL="http://192.168.31.74:8000"
+func getUrlByPath(path []string) string {
+
+	a_condtion_url := viper.GetString("condition.auth")
+	b_condtion_url := viper.GetString("condition.client")
+	c_condtion_url := viper.GetString("condition.courier")
+	d_condtion_url := viper.GetString("condition.order_cook")
+	default_condtion_url := viper.GetString("condition.default")
+	basePath := path[1]
+	if strings.ToLower(basePath) == "register" || strings.ToLower(basePath) == "register" {
+		return a_condtion_url
+	}
+
+	if strings.ToLower(basePath) == "clients" {
+		return b_condtion_url
+	}
+
+	if strings.ToLower(basePath) == "couriers" {
+		return c_condtion_url
+	}
+
+	if strings.ToLower(basePath) == "orders" || strings.ToLower(basePath) == "order-create" || strings.ToLower(basePath) == "meal-create" || strings.ToLower(basePath) == "mealoptions" || strings.ToLower(basePath) == "categories" || strings.ToLower(basePath) == "ingredients" || strings.ToLower(basePath) == "meals" || strings.ToLower(basePath) == "meal" || strings.ToLower(basePath) == "ingredient-create" || strings.ToLower(basePath) == "mealoption-create" || strings.ToLower(basePath) == "category-create" || strings.ToLower(basePath) == "deliveryareas" || strings.ToLower(basePath) == "cook-create" || strings.ToLower(basePath) == "recommend-create" || strings.ToLower(basePath) == "resume-create" || strings.ToLower(basePath) == "cooks"{
+		return d_condtion_url
+	}
+	return default_condtion_url
+}
 
 // Given a request send it to the appropriate url
 func handleRequestAndRedirect(res http.ResponseWriter, req *http.Request) {
+
 	requestPayload := parseRequestBody(req)
-	url := getProxyUrl(requestPayload.ProxyCondition)
+
+	path := req.URL.Path
+	fmt.Println("PATH:", path)
+	parts := strings.Split(path, "/")
+
+	fmt.Println("*************")
+	fmt.Println("parts:", parts)
+	fmt.Println("parts[0]:", parts[0])
+	fmt.Println("parts[1]:", parts[1])
+	fmt.Println("parts[1]-len:", len(parts[1]))
+
+	fmt.Println("in handle - path:", path)
+	// url := getProxyUrl(requestPayload.ProxyCondition)
+	url := getUrlByPath(parts)
 	fmt.Println("in handle - url:", url)
 	logRequestPayload(requestPayload, url)
 	fmt.Println("in handle - requestPayload:", requestPayload)
