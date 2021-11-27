@@ -12,6 +12,9 @@ import (
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 // Get env var or default
@@ -22,19 +25,28 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+// TODO env filedan istifade et
+// FIXME just test
+
 // Get the port to listen on
 func getListenAddress() string {
-	port := getEnv("PORT", "8089")
+	// port := getEnv("PORT", "8089")
+	port := viper.GetString("port")
 	return ":" + port
 }
 
 // Log the env variables required for a reverse proxy
 func logSetup() {
-	a_condtion_url := os.Getenv("A_CONDITION_URL")
-	b_condtion_url := os.Getenv("B_CONDITION_URL")
-	c_condtion_url := os.Getenv("C_CONDITION_URL")
-	d_condtion_url := os.Getenv("D_CONDITION_URL")
-	default_condtion_url := os.Getenv("DEFAULT_CONDITION_URL")
+	// a_condtion_url := os.Getenv("A_CONDITION_URL")
+	a_condtion_url := viper.GetString("condition.auth")
+	// b_condtion_url := os.Getenv("B_CONDITION_URL")
+	b_condtion_url := viper.GetString("condition.client")
+	// c_condtion_url := os.Getenv("C_CONDITION_URL")
+	c_condtion_url := viper.GetString("condition.courier")
+	// d_condtion_url := os.Getenv("D_CONDITION_URL")
+	d_condtion_url := viper.GetString("condition.order_cook")
+	// default_condtion_url := os.Getenv("DEFAULT_CONDITION_URL")
+	default_condtion_url := viper.GetString("condition.default")
 
 	log.Printf("Server will run on: %s\n", getListenAddress())
 	log.Printf("Redirecting to A url: %s\n", a_condtion_url)
@@ -93,7 +105,9 @@ func serveReverseProxy(target string, res http.ResponseWriter, req *http.Request
 
 	// Update the headers to allow for SSL redirection
 	req.URL.Host = url.Host
+	log.Println("url.Host:", url.Host)
 	req.URL.Scheme = url.Scheme
+	log.Println("url.Scheme:", url.Scheme)
 	req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
 	req.Host = url.Host
 
@@ -105,28 +119,32 @@ func serveReverseProxy(target string, res http.ResponseWriter, req *http.Request
 func getProxyUrl(proxyConditionRaw string) string {
 	proxyCondition := strings.ToUpper(proxyConditionRaw)
 
-	a_condtion_url := os.Getenv("A_CONDITION_URL")
-	b_condtion_url := os.Getenv("B_CONDITION_URL")
-	c_condtion_url := os.Getenv("C_CONDITION_URL")
-	d_condtion_url := os.Getenv("D_CONDITION_URL")
-	default_condtion_url := os.Getenv("DEFAULT_CONDITION_URL")
+	a_condtion_url := viper.GetString("condition.auth")
+	b_condtion_url := viper.GetString("condition.client")
+	c_condtion_url := viper.GetString("condition.courier")
+	d_condtion_url := viper.GetString("condition.order_cook")
+	default_condtion_url := viper.GetString("condition.default")
 
 	if proxyCondition == "AUTH" {
+		log.Println("Entered auth condition")
 		return a_condtion_url
 	}
 
 	if proxyCondition == "CLIENT" {
+		log.Println("Entered auth condition")
 		return b_condtion_url
 	}
 
 	if proxyCondition == "COURIER" {
+		log.Println("Entered courier condition")
 		return c_condtion_url
 	}
 
 	if proxyCondition == "ORDER-COOK" {
+		log.Println("Entered order-cook condition")
 		return d_condtion_url
 	}
-
+	log.Println("condition-lara girmeden geldi bura!")
 	return default_condtion_url
 }
 
@@ -136,13 +154,18 @@ func getProxyUrl(proxyConditionRaw string) string {
 func handleRequestAndRedirect(res http.ResponseWriter, req *http.Request) {
 	requestPayload := parseRequestBody(req)
 	url := getProxyUrl(requestPayload.ProxyCondition)
-	fmt.Println("in handele - url:", url)
+	fmt.Println("in handle - url:", url)
 	logRequestPayload(requestPayload, url)
-	fmt.Println("in handele - requestPayload:", requestPayload)
+	fmt.Println("in handle - requestPayload:", requestPayload)
 	serveReverseProxy(url, res, req)
 }
 
 func main() {
+
+	if err := initConfig(); err != nil {
+		logrus.Fatalf("error initializing configs: %s", err.Error())
+	}
+
 	// Log setup values
 	logSetup()
 
@@ -151,4 +174,10 @@ func main() {
 	if err := http.ListenAndServe(getListenAddress(), nil); err != nil {
 		panic(err)
 	}
+}
+
+func initConfig() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }

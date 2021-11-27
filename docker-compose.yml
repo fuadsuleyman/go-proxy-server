@@ -1,0 +1,7 @@
+version: '3.6'
+
+services:
+  proxy:
+    build: ./
+    ports:
+      - 8001:8000
