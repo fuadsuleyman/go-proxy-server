@@ -164,11 +164,11 @@ func getUrlByPath(path []string) string {
 		return b_condtion_url
 	}
 
-	if strings.ToLower(basePath) == "couriers" {
+	if strings.ToLower(basePath) == "couriers" || strings.ToLower(basePath) == "pick-up" || strings.ToLower(basePath) == "deliver" {
 		return c_condtion_url
 	}
 
-	if strings.ToLower(basePath) == "orders" || strings.ToLower(basePath) == "order-create" || strings.ToLower(basePath) == "meal-create" || strings.ToLower(basePath) == "mealoptions" || strings.ToLower(basePath) == "categories" || strings.ToLower(basePath) == "ingredients" || strings.ToLower(basePath) == "meals" || strings.ToLower(basePath) == "meal" || strings.ToLower(basePath) == "ingredient-create" || strings.ToLower(basePath) == "mealoption-create" || strings.ToLower(basePath) == "category-create" || strings.ToLower(basePath) == "deliveryareas" || strings.ToLower(basePath) == "cook-create" || strings.ToLower(basePath) == "recommend-create" || strings.ToLower(basePath) == "resume-create" || strings.ToLower(basePath) == "cooks"{
+	if strings.ToLower(basePath) == "orders" || strings.ToLower(basePath) == "order-create" || strings.ToLower(basePath) == "meal-create" || strings.ToLower(basePath) == "mealoptions" || strings.ToLower(basePath) == "categories" || strings.ToLower(basePath) == "ingredients" || strings.ToLower(basePath) == "meals" || strings.ToLower(basePath) == "meal" || strings.ToLower(basePath) == "ingredient-create" || strings.ToLower(basePath) == "mealoption-create" || strings.ToLower(basePath) == "category-create" || strings.ToLower(basePath) == "deliveryareas" || strings.ToLower(basePath) == "cook-create" || strings.ToLower(basePath) == "recommend-create" || strings.ToLower(basePath) == "resume-create" || strings.ToLower(basePath) == "cooks" {
 		return d_condtion_url
 	}
 	return default_condtion_url
@@ -177,7 +177,7 @@ func getUrlByPath(path []string) string {
 // Given a request send it to the appropriate url
 func handleRequestAndRedirect(res http.ResponseWriter, req *http.Request) {
 
-	requestPayload := parseRequestBody(req)
+	// requestPayload := parseRequestBody(req)
 
 	path := req.URL.Path
 	fmt.Println("PATH:", path)
@@ -193,8 +193,8 @@ func handleRequestAndRedirect(res http.ResponseWriter, req *http.Request) {
 	// url := getProxyUrl(requestPayload.ProxyCondition)
 	url := getUrlByPath(parts)
 	fmt.Println("in handle - url:", url)
-	logRequestPayload(requestPayload, url)
-	fmt.Println("in handle - requestPayload:", requestPayload)
+	// logRequestPayload(requestPayload, url)
+	// fmt.Println("in handle - requestPayload:", requestPayload)
 	serveReverseProxy(url, res, req)
 }
 
