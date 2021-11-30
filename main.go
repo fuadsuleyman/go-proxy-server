@@ -91,8 +91,8 @@ func parseRequestBody(request *http.Request) requestPayloadStruct {
 }
 
 // Log the typeform payload and redirect url
-func logRequestPayload(requestionPayload requestPayloadStruct, proxyUrl string) {
-	log.Printf("proxy_condition: %s, proxy_url: %s\n", requestionPayload.ProxyCondition, proxyUrl)
+func logRequest(path, proxyUrl string) {
+	log.Printf("proxy_condition_path: %s, proxy_url: %s\n", path, proxyUrl)
 }
 
 // Serve a reverse proxy for a given url
@@ -177,24 +177,13 @@ func getUrlByPath(path []string) string {
 // Given a request send it to the appropriate url
 func handleRequestAndRedirect(res http.ResponseWriter, req *http.Request) {
 
-	// requestPayload := parseRequestBody(req)
-
 	path := req.URL.Path
 	fmt.Println("PATH:", path)
 	parts := strings.Split(path, "/")
 
-	fmt.Println("*************")
-	fmt.Println("parts:", parts)
-	fmt.Println("parts[0]:", parts[0])
-	fmt.Println("parts[1]:", parts[1])
-	fmt.Println("parts[1]-len:", len(parts[1]))
-
-	fmt.Println("in handle - path:", path)
-	// url := getProxyUrl(requestPayload.ProxyCondition)
+	
 	url := getUrlByPath(parts)
-	fmt.Println("in handle - url:", url)
-	// logRequestPayload(requestPayload, url)
-	// fmt.Println("in handle - requestPayload:", requestPayload)
+	logRequest(path, url)
 	serveReverseProxy(url, res, req)
 }
 
